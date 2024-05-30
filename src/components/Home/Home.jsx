@@ -18,7 +18,7 @@ const Home = () => {
         );
         let fetchedPosts = postsResponse.data;
 
-        // Sort posts in descending order based on their IDs
+        // Sort posts in descending order
         fetchedPosts.sort((a, b) => b.id - a.id);
 
         // Fetch users data
@@ -33,15 +33,15 @@ const Home = () => {
         );
         const fetchedComments = postCommentResponse.data;
 
-        // Calculate total pages
+        // pagination calculation 
         setTotalPages(Math.ceil(fetchedPosts.length / postsPerPage));
 
-        // Slice the posts for the current page
+       
         const startIndex = (currentPage - 1) * postsPerPage;
         const endIndex = startIndex + postsPerPage;
         const paginatedPosts = fetchedPosts.slice(startIndex, endIndex);
 
-        // Match posts with users and comments
+        //here i  Match posts with users and comments
         const postsWithDetails = paginatedPosts.map((post) => {
           const user = fetchedUsers.find((user) => user.id === post.userId);
           const postComments = fetchedComments.filter(
