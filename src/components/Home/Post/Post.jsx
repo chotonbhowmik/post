@@ -1,4 +1,4 @@
-import  { useState } from "react";
+import { useState } from "react";
 import PropTypes from "prop-types";
 
 const Post = ({ title, body, username, comments }) => {
@@ -14,27 +14,35 @@ const Post = ({ title, body, username, comments }) => {
         {title}
       </h2>
       <p className="text-gray-700 text-justify capitalize">{body}</p>
-      <p className="text-gray-500 mt-4">
+      <p className="text-gray-500 m-4">
         Posted by: <b className="text-black">{username}</b>
       </p>
       <a
-        className="mt-6  text-black underline cursor-pointer py-2 px-4 "
+        className="text-black underline cursor-pointer"
         onClick={toggleComments}
       >
-        {showComments ? "Show Less" : "Show More"}
+        {showComments ? "Show Less" : "Show Comments"}
       </a>
       {showComments && (
         <div className="mt-4">
-          <h3 className="text-xl font-bold">Comments:</h3>
           {comments.length > 0 ? (
             comments.map((comment) => (
-              <div key={comment.id} className="mt-2">
-                <p className="font-semibold text-justify capitalize">
-                  {comment.name}
-                </p>
-                <p className="text-gray-600 text-justify capitalize mt-3">
-                  {comment.body}
-                </p>
+              <div key={comment.id} className="relative mt-2 pl-4">
+                <div className="flex items-center">
+                  <p className="font-semibold text-justify capitalize">
+                    {comment.name}
+                  </p>
+                 
+                </div>
+                <div className="relative pl-4">
+                  <div className="absolute left-0 top-0 h-full flex items-center">
+                    <div className="h-full border-l border-dotted border-black"></div>
+                    
+                  </div>
+                  <p className="text-gray-600 text-justify capitalize mt-3 ml-4">
+                    {comment.body}
+                  </p>
+                </div>
               </div>
             ))
           ) : (

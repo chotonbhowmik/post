@@ -1,33 +1,48 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import Post from "./Post/Post";
+import Pagination from "./Pagination/Pagination";
 
 const Home = () => {
   const [posts, setPosts] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const postsPerPage = 9;
 
   useEffect(() => {
     const fetchPostsAndUsers = async () => {
       try {
-        // Here i am Fetching posts data
+        // Fetch all posts data
         const postsResponse = await axios.get(
           `${import.meta.env.VITE_BASE_URL}/posts`
         );
-        const fetchedPosts = postsResponse.data;
+        let fetchedPosts = postsResponse.data;
 
-        // Here i am Fetching users data
+        // Sort posts in descending order based on their IDs
+        fetchedPosts.sort((a, b) => b.id - a.id);
+
+        // Fetch users data
         const usersResponse = await axios.get(
           `${import.meta.env.VITE_BASE_URL}/users`
         );
         const fetchedUsers = usersResponse.data;
 
-        //Here i am Fetching comments data
+        // Fetch comments data
         const postCommentResponse = await axios.get(
           `${import.meta.env.VITE_BASE_URL}/comments`
         );
         const fetchedComments = postCommentResponse.data;
 
-        // Here i am Matching posts with users and comments
-        const postsWithDetails = fetchedPosts.map((post) => {
+        // Calculate total pages
+        setTotalPages(Math.ceil(fetchedPosts.length / postsPerPage));
+
+        // Slice the posts for the current page
+        const startIndex = (currentPage - 1) * postsPerPage;
+        const endIndex = startIndex + postsPerPage;
+        const paginatedPosts = fetchedPosts.slice(startIndex, endIndex);
+
+        // Match posts with users and comments
+        const postsWithDetails = paginatedPosts.map((post) => {
           const user = fetchedUsers.find((user) => user.id === post.userId);
           const postComments = fetchedComments.filter(
             (comment) => comment.postId === post.id
@@ -46,7 +61,12 @@ const Home = () => {
     };
 
     fetchPostsAndUsers();
-  }, []);
+  }, [currentPage]);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
   return (
     <div className="container mx-auto p-4">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
@@ -60,6 +80,11 @@ const Home = () => {
           />
         ))}
       </div>
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+      />
     </div>
   );
 };
