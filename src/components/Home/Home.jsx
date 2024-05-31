@@ -7,10 +7,12 @@ const Home = () => {
   const [posts, setPosts] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(true); 
   const postsPerPage = 9;
 
   useEffect(() => {
     const fetchPostsAndUsers = async () => {
+      setLoading(true); 
       try {
         // Fetch all posts data
         const postsResponse = await axios.get(
@@ -33,15 +35,14 @@ const Home = () => {
         );
         const fetchedComments = postCommentResponse.data;
 
-        // pagination calculation 
+        // Pagination calculation
         setTotalPages(Math.ceil(fetchedPosts.length / postsPerPage));
 
-       
         const startIndex = (currentPage - 1) * postsPerPage;
         const endIndex = startIndex + postsPerPage;
         const paginatedPosts = fetchedPosts.slice(startIndex, endIndex);
 
-        //here i  Match posts with users and comments
+        // Match posts with users and comments
         const postsWithDetails = paginatedPosts.map((post) => {
           const user = fetchedUsers.find((user) => user.id === post.userId);
           const postComments = fetchedComments.filter(
@@ -57,6 +58,8 @@ const Home = () => {
         setPosts(postsWithDetails);
       } catch (error) {
         console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false); 
       }
     };
 
@@ -69,22 +72,28 @@ const Home = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {posts.map((post) => (
-          <Post
-            key={post.id}
-            title={post.title}
-            body={post.body}
-            username={post.username}
-            comments={post.comments}
+      {loading ? ( 
+        <div className="loader">Loading...</div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            {posts.map((post) => (
+              <Post
+                key={post.id}
+                title={post.title}
+                body={post.body}
+                username={post.username}
+                comments={post.comments}
+              />
+            ))}
+          </div>
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
           />
-        ))}
-      </div>
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={handlePageChange}
-      />
+        </>
+      )}
     </div>
   );
 };
