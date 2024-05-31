@@ -1,5 +1,6 @@
+
 import { useState, useEffect } from "react";
-import axios from "axios";
+import { fetchPosts, fetchUsers, fetchComments } from "../../Api/Api"; 
 import Post from "./Post/Post";
 import Pagination from "./Pagination/Pagination";
 
@@ -7,33 +8,24 @@ const Home = () => {
   const [posts, setPosts] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [loading, setLoading] = useState(true); 
+  const [loading, setLoading] = useState(true);
   const postsPerPage = 9;
 
   useEffect(() => {
     const fetchPostsAndUsers = async () => {
-      setLoading(true); 
+      setLoading(true);
       try {
-        // Fetch all posts data
-        const postsResponse = await axios.get(
-          `${import.meta.env.VITE_BASE_URL}/posts`
-        );
-        let fetchedPosts = postsResponse.data;
+        // Here Fetching all posts data
+        let fetchedPosts = await fetchPosts();
 
         // Sort posts in descending order
         fetchedPosts.sort((a, b) => b.id - a.id);
 
-        // Fetch users data
-        const usersResponse = await axios.get(
-          `${import.meta.env.VITE_BASE_URL}/users`
-        );
-        const fetchedUsers = usersResponse.data;
+        // Here Fetching users data
+        const fetchedUsers = await fetchUsers();
 
-        // Fetch comments data
-        const postCommentResponse = await axios.get(
-          `${import.meta.env.VITE_BASE_URL}/comments`
-        );
-        const fetchedComments = postCommentResponse.data;
+        // Here Fetching comments data
+        const fetchedComments = await fetchComments();
 
         // Pagination calculation
         setTotalPages(Math.ceil(fetchedPosts.length / postsPerPage));
@@ -42,7 +34,7 @@ const Home = () => {
         const endIndex = startIndex + postsPerPage;
         const paginatedPosts = fetchedPosts.slice(startIndex, endIndex);
 
-        // Match posts with users and comments
+        // Here Match posts with users and comments
         const postsWithDetails = paginatedPosts.map((post) => {
           const user = fetchedUsers.find((user) => user.id === post.userId);
           const postComments = fetchedComments.filter(
@@ -59,7 +51,7 @@ const Home = () => {
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
-        setLoading(false); 
+        setLoading(false);
       }
     };
 
@@ -72,11 +64,11 @@ const Home = () => {
 
   return (
     <div className="container mx-auto p-4">
-      {loading ? ( 
+      {loading ? (
         <div className="loader">Loading...</div>
       ) : (
         <>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-1 gap-4">
             {posts.map((post) => (
               <Post
                 key={post.id}
